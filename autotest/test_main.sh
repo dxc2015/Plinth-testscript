@@ -45,25 +45,25 @@ function board_run_back()
     expect -re {Press any other key in [0-9]+ seconds to stop automatical booting}
     send "\r"
     send "\r"
-	expect "login:"
-	send "${user}\r"
-	expect "Password:"
-	send "${passwd}\r"
-    #sleep 5
+    expect "login:"
+    send "${user}\r"
+    expect "Password:"
+    send "${passwd}\r"
+    sleep 5
     expect -re ":.*#"
 
     send "echo `ifconfig eth0|grep -Po \"(?<=(inet addr:))(.*)(?=(Bcast))\"` >backIP.txt\r"
-	expect ".*#"
-	# cp test script to server
-	send "rm -f ~/.ssh/known_hosts\r"
-	send "rm -f ~/.ssh/authorized_keys\r"
-	send "scp backIP.txt ${server_user}@${SERVER_IP}:~/autotest\r"
-	expect "Are you sure you want to continue connecting (yes/no)?"
-	send "yes\r"
-	expect "password:"
-	send "${server_passwd}\r"		
-	expect -re ":.*#"
-	'
+    expect ".*#"
+    # cp test script to server
+    send "rm -f ~/.ssh/known_hosts\r"
+    send "rm -f ~/.ssh/authorized_keys\r"
+    send "scp backIP.txt ${server_user}@${SERVER_IP}:~/autotest\r"
+    expect "Are you sure you want to continue connecting (yes/no)?"
+    send "yes\r"
+    expect "password:"
+    send "${server_passwd}\r"		
+    expect -re ":.*#"
+    '
 
     export BACK_IP=`cat backIP.txt|sed s/[[:space:]]//g`
     cfg_file=./xge_autotest/config/xge_test_config
@@ -87,51 +87,51 @@ function board_run()
     expect -c '
     set timeout -1
     set boardno '$1'
-	set user '$SYSTEM_USER'
-	set passwd '$SYSTEM_PASSWD'
-	set server_user '$SERVER_USER'
-	set server_passwd '$SERVER_PASSWD'
-	set test_run_script '$2'
+    set user '$SYSTEM_USER'
+    set passwd '$SYSTEM_PASSWD'
+    set server_user '$SERVER_USER'
+    set server_passwd '$SERVER_PASSWD'
+    set test_run_script '$2'
     set SERVER_IP '$SERVER_IP'
-	set autotest_zip '${AUTOTEST_ZIP_FILE}'
+    set autotest_zip '${AUTOTEST_ZIP_FILE}'
     set report_path '${REPORT_PATH}'
     set report_file '${REPORT_FILE}'
     set mode_report_file '$3'
-	spawn board_connect ${boardno}
-	send "\r"
-	expect -re {Press any other key in [0-9]+ seconds to stop automatical booting}
-	send "\r"
-	send "\r"
-	expect "login:"
-	send "${user}\r"
-	expect "Password:"
-	send "${passwd}\r"
-	#sleep 8
+    spawn board_connect ${boardno}
+    send "\r"
+    expect -re {Press any other key in [0-9]+ seconds to stop automatical booting}
+    send "\r"
+    send "\r"
+    expect "login:"
+    send "${user}\r"
+    expect "Password:"
+    send "${passwd}\r"
+    sleep 8
     expect -re ":.*#"
-	# cp test script from server
+    # cp test script from server
     send "rm -f ~/.ssh/known_hosts\r"
-	send "scp ${server_user}@${SERVER_IP}:~/${autotest_zip} ~/\r"
-	expect "Are you sure you want to continue connecting (yes/no)?"
-	send "yes\r"
+    send "scp ${server_user}@${SERVER_IP}:~/${autotest_zip} ~/\r"
+    expect "Are you sure you want to continue connecting (yes/no)?"
+    send "yes\r"
 		
-	expect "password:"
-	send "${server_passwd}\r"
+    expect "password:"
+    send "${server_passwd}\r"
 		
-	expect ".*#"
-	send "tar -zxvf ${autotest_zip}\r"
-	expect ".*#"
-	send "cd ~/autotest;bash -x ${test_run_script}\r"
-	expect -re ":.*#"
+    expect ".*#"
+    send "tar -zxvf ${autotest_zip}\r"
+    expect ".*#"
+    send "cd ~/autotest;bash -x ${test_run_script}\r"
+    expect -re ":.*#"
     send "rm -f ~/.ssh/known_hosts\r"
     send "scp ${report_file} ${server_user}@${SERVER_IP}:${report_path}/${mode_report_file}\r"
     expect "Are you sure you want to continue connecting (yes/no)?"
     send "yes\r"
 
-	expect "password:"
-	send "${server_passwd}\r"
-	expect -re ":.*#"
-        send "cd ~;rm -rf ~/autotest;rm -rf ${autotest_zip}\r"
-	expect -re ":.*#"
+    expect "password:"
+    send "${server_passwd}\r"
+    expect -re ":.*#"
+    send "cd ~;rm -rf ~/autotest;rm -rf ${autotest_zip}\r"
+    expect -re ":.*#"
     '
 }
 
@@ -139,13 +139,14 @@ function board_run()
 # IN : N/A
 # OUT: N/A
 function main()
-{	
+{
+    TOP_DIR=$(cd "`dirname $0`" ; pwd)	
     #update image
     #update_image
     killall ipmitool >/dev/null
 
     cd ~/
-    tar -zcvf  ${AUTOTEST_ZIP_FILE} autotest
+    tar -zcvf  ${AUTOTEST_ZIP_FILE} $TOP_DIR
     [ $? != 0 ] && echo "tar test script failed." && return 1
 
     #Output log file header

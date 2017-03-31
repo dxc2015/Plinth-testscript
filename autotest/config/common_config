@@ -33,7 +33,7 @@ XGE_BORADNO=
 BACK_XGE_BORADNO=
 
 # PCIE Module Configuration item
-PCIE_MAIN=sas_autotest/pcie_main.sh
+PCIE_MAIN=pcie_autotest/pcie_main.sh
 PCIE_REPORT_FILE=pcie_report.csv
 PCIE_BORADNO=
 BACK_PCIE_BORADNO=
