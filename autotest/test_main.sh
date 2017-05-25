@@ -117,9 +117,9 @@ function board_run()
     expect "password:"
     send "${server_passwd}\r"
 		
-    expect ".*#"
+    expect -re ":.*#"
     send "tar -zxvf ${autotest_zip}\r"
-    expect ".*#"
+    expect -re ":.*#"
     send "cd ~/autotest;bash -x ${test_run_script}\r"
     expect -re ":.*#"
     send "rm -f ~/.ssh/known_hosts\r"

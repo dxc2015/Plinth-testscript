@@ -15,6 +15,7 @@ function main()
     
     for key in "${!case_map[@]}"
     do
+        echo $key " : " ${case_map[$key]}
         case "${case_map[$key]}" in
             on)
                 commd="${key}.sh"
