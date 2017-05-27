@@ -39,13 +39,11 @@ function mount_disk()
 # OUT: N/A
 function fio_config()
 {
-#    local count=1
     echo "$FIO_PARAMETER_LIST" > ${FIO_CONFG}
     for dev in "${ALL_DISK_PART_NAME[@]}"
     do
         echo "[job1]" >> ${FIO_CONFG}
         echo "filename=$dev" >> ${FIO_CONFG}
-#        let count+=1
     done
 }
 
@@ -83,5 +81,24 @@ function phy_ops()
             esac
         ;;
     esac
+}
+
+# Reset file status.
+# IN : $1 - Reset file value.
+#      $2 - reset file.
+# OUT: N/A
+function change_sas_phy_file()
+{
+    for dir in `ls ${PHY_FILE_PATH}`
+    do
+        str=`cat ${PHY_FILE_PATH}/${dir}/device_type`
+        num=`echo "$dir" | awk -F":" '{print $NF}'`
+
+        if [ x"$str" == x"end device" ] && [ $num -le $EFFECTIVE_PHY_NUM ]
+        then
+            echo $1 > ${PHY_FILE_PATH}/${dir}/$2
+            sleep 5
+        fi
+    done
 }
 

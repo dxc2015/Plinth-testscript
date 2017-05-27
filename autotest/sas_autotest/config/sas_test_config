@@ -28,6 +28,8 @@ declare -A case_map=(
 ["support_available_sas_cores"]="off"
 #  6 - support full sas function on all available phys.
 ["support_full_sas_function_all_available_phys"]="on"
+#  7 - Support SAS Narrow and Wide Ports.
+["narrow_and_wide_ports"]="on"
 )
 
 
@@ -76,7 +78,7 @@ runtime=300
 loops=10
 "
 
-# phy address
+#phy address
 PHY_ADDR_VALUE=(
 "0xa2002000" "0xa2002400"
 "0xa2002800" "0xa2002c00"
@@ -120,3 +122,11 @@ LOOP_PHY_COUNT=10
 #  
 LOOP_PHY_TIME=600
 
+## 7 - Support SAS Narrow and Wide Ports.
+#  phy file path.
+PHY_FILE_PATH="/sys/class/sas_phy/"
+#
+FIO_RESET_TIME=600
+#
+RESET_COUNT=2
+ 

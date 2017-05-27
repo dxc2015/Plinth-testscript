@@ -54,13 +54,15 @@ function setTrustRelation
     apt-get install -y expect 1>/dev/null
     expect -c '
 	set back_ip '$BACK_IP'
+        set timeout -1
 	spawn ssh-copy-id -i id_rsa.pub root@${back_ip}
 	expect "Are you sure you want to continue connecting (yes/no)?"
 	send "yes\r"
-        expect ".*password:"
+        expect -re ".*password:"
 	send "root\r"
-	expect ".*$"
-	      '
+	expect -re ".*$"
+    '
+
     return 0
 }
 

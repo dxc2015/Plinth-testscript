@@ -24,7 +24,9 @@ function update_image()
 # OUT: N/A
 function board_run_back()
 {
-    cp ~/grub-back.cfg ~/grub.cfg
+    #Setting up a single board default startup system.
+    #cp ~/grub-back.cfg ~/grub.cfg
+    sed -i "{s/^set\ default=.*/set\ default=${BACK_BOARD_GREB_DEFAULT}/g;}" ~/grub.cfg
     board_reboot $1
     [ $? != 0 ] && echo "board reboot failed." && return 1
     expect -c '
@@ -45,33 +47,34 @@ function board_run_back()
     expect -re {Press any other key in [0-9]+ seconds to stop automatical booting}
     send "\r"
     send "\r"
-    expect "login:"
+    expect -re "login:"
     send "${user}\r"
-    expect "Password:"
+    expect -re "Password:"
     send "${passwd}\r"
     sleep 5
     expect -re ":.*#"
 
     send "echo `ifconfig eth0|grep -Po \"(?<=(inet addr:))(.*)(?=(Bcast))\"` >backIP.txt\r"
-    expect ".*#"
+    expect -re ".*#"
     # cp test script to server
     send "rm -f ~/.ssh/known_hosts\r"
     send "rm -f ~/.ssh/authorized_keys\r"
     send "scp backIP.txt ${server_user}@${SERVER_IP}:~/autotest\r"
-    expect "Are you sure you want to continue connecting (yes/no)?"
+    expect -re "Are you sure you want to continue connecting (yes/no)?"
     send "yes\r"
-    expect "password:"
+    expect -re "password:"
     send "${server_passwd}\r"		
     expect -re ":.*#"
     '
 
     export BACK_IP=`cat backIP.txt|sed s/[[:space:]]//g`
-    cfg_file=./xge_autotest/config/xge_test_config
-    sed -i '/^BACK_IP.*/d' $cfg_file && echo BACK_IP="$BACK_IP" >>$cfg_file
+    #cfg_file=./xge_autotest/config/xge_test_config
+    sed -i '/^BACK_IP.*/d' ${XGE_MODULE_CFG_FILE} && echo BACK_IP="$BACK_IP" >>${XGE_MODULE_CFG_FILE}
+    sed -i '/^BACK_IP.*/d' ${PCIE_MODULE_CFG_FILE} && echo BACK_IP="$BACK_IP" >>${PCIE_MODULE_CFG_FILE}
     cd ~/
     tar -zcvf  ${AUTOTEST_ZIP_FILE} autotest
     [ $? != 0 ] && echo "tar test script failed." && return 1
-    cp ~/grub-host.cfg ~/grub.cfg
+    #cp ~/grub-host.cfg ~/grub.cfg
     return 0
 }
 
@@ -81,6 +84,8 @@ function board_run_back()
 # OUT: N/A
 function board_run()
 {
+    #Setting up a single board default startup system.
+    sed -i "{s/^set\ default=.*/set\ default=${BOARD_GREB_DEFAULT}/g;}" ~/grub.cfg
     board_reboot $1
     [ $? != 0 ] && echo "board reboot failed." && return 1
 	
@@ -102,19 +107,19 @@ function board_run()
     expect -re {Press any other key in [0-9]+ seconds to stop automatical booting}
     send "\r"
     send "\r"
-    expect "login:"
+    expect -re "login:"
     send "${user}\r"
-    expect "Password:"
+    expect -re "Password:"
     send "${passwd}\r"
     sleep 8
     expect -re ":.*#"
     # cp test script from server
     send "rm -f ~/.ssh/known_hosts\r"
     send "scp ${server_user}@${SERVER_IP}:~/${autotest_zip} ~/\r"
-    expect "Are you sure you want to continue connecting (yes/no)?"
+    expect -re "Are you sure you want to continue connecting (yes/no)?"
     send "yes\r"
 		
-    expect "password:"
+    expect -re "password:"
     send "${server_passwd}\r"
 		
     expect -re ":.*#"
@@ -124,10 +129,10 @@ function board_run()
     expect -re ":.*#"
     send "rm -f ~/.ssh/known_hosts\r"
     send "scp ${report_file} ${server_user}@${SERVER_IP}:${report_path}/${mode_report_file}\r"
-    expect "Are you sure you want to continue connecting (yes/no)?"
+    expect -re "Are you sure you want to continue connecting (yes/no)?"
     send "yes\r"
 
-    expect "password:"
+    expect -re "password:"
     send "${server_passwd}\r"
     expect -re ":.*#"
     send "cd ~;rm -rf ~/autotest;rm -rf ${autotest_zip}\r"
@@ -149,6 +154,7 @@ function main()
     tar -zcvf  ${AUTOTEST_ZIP_FILE} $TOP_DIR
     [ $? != 0 ] && echo "tar test script failed." && return 1
 
+    cd ${TOP_DIR}
     #Output log file header
     #echo "Module Name,JIRA ID,Test Item,Test Case Title,Test Result,Remark" > ${REPORT_FILE}
 
